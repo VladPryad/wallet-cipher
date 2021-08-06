@@ -1,8 +1,9 @@
 const StellarHDWallet = require('stellar-hd-wallet');
 const StellarSDK = require('stellar-sdk');
+const bip39 = require('bip39');
 const forge = require("node-forge");
 
-const password = 'password';
+const password = '';
 const sixteenBytes = "________________";
 const eightBytes = "________";
 
@@ -11,11 +12,14 @@ const mnemonic = StellarHDWallet.generateMnemonic({ entropyBits: 128 }); // 12 w
 console.debug("MNEMONIC: ", mnemonic);
 
 const wallet = StellarHDWallet.fromMnemonic(mnemonic, password);
+const walletWithoutPass = StellarHDWallet.fromMnemonic(mnemonic);
 
 console.debug("WALLET: ", wallet);
 
-console.debug("PK from raw: ", wallet.getPublicKey(0));
-console.debug("SK from raw: ", wallet.getSecret(0));
+console.debug("WALLET_NO_PASS: ", walletWithoutPass);
+
+//console.debug("PK from raw: ", wallet.getPublicKey(0));
+//console.debug("SK from raw: ", wallet.getSecret(0));
 
 // let genKeypair = StellarSDK.Keypair.fromSecret(wallet.getSecret(0));
 
@@ -32,6 +36,29 @@ function formatPass(pass) {
     const key = forge.pkcs5.pbkdf2(pass, eightBytes, 1000, keySize);
     return key;
 }
+
+function validateMnemonic(mnemonic) {
+    return StellarHDWallet.validateMnemonic(mnemonic);
+}
+
+function pickMnemonicProblem(mnemonic) {
+    const mnemonicArr = mnemonic.split(/\s+/).map(w => w.trim());
+
+    let err = "";
+    let missing = [];
+
+    if(mnemonicArr.length < 12) err += "Mnemonic is too short. ";
+
+    mnemonicArr.forEach(el => {
+        if (!bip39.wordlists['english'].includes(el)) missing.push(el);
+    });
+
+    if(missing.length != 0) err += `${missing.join(', ')} cannot be your word(s). `
+
+    return err;
+}
+
+console.log("MNEMONIC check ", pickMnemonicProblem('island license town mass cute identify fiction combine indicate cloud food release portion alter disorder'))
 
 function encrypt(payload, key) {
     const sk = forge.util.createBuffer(payload);
@@ -66,8 +93,9 @@ function decrypt(cipherHEX, key) {
 }
 
 
-let encrypted = encrypt(wallet.getPublicKey(0), formatPass(password));
-let decrypted = decrypt(encrypted, formatPass(password));
+//let encrypted = encrypt(wallet.getSecret(0), formatPass('vlad'));
+//let decrypted = decrypt(encrypted, formatPass("vlad"));
 
-console.log("ENC: ", encrypted);
-console.log("DEC: ", decrypted);
+//console.log("ENC: ", encrypted);
+//console.log("DEC: ", decrypted);
+
