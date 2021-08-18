@@ -13,6 +13,6 @@
     "bip39": "^3.0.4",
     "node-forge": "^0.10.0",
     "stellar-hd-wallet": "0.0.10",
-    "stellar-sdk": "^8.2.3"
+    "stellar-sdk": "^8.2.5"
   }
 }

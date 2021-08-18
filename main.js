@@ -50,7 +50,7 @@ function pickMnemonicProblem(mnemonic) {
     if(mnemonicArr.length < 12) err += "Mnemonic is too short. ";
 
     mnemonicArr.forEach(el => {
-        if (!bip39.wordlists['english'].includes(el)) missing.push(el);
+        if (!bip39.wordlists['english'].includes(el)) missing.push(`"${el}"`);
     });
 
     if(missing.length != 0) err += `${missing.join(', ')} cannot be your word(s). `
@@ -58,7 +58,7 @@ function pickMnemonicProblem(mnemonic) {
     return err;
 }
 
-console.log("MNEMONIC check ", pickMnemonicProblem('island license town mass cute identify fiction combine indicate cloud food release portion alter disorder'))
+console.log("MNEMONIC check ", pickMnemonicProblem('island license  townd mass cuter identify fiction combine indicate cloud food release portion alter disorder'))
 
 function encrypt(payload, key) {
     const sk = forge.util.createBuffer(payload);
@@ -98,4 +98,12 @@ function decrypt(cipherHEX, key) {
 
 //console.log("ENC: ", encrypted);
 //console.log("DEC: ", decrypted);
+
+function getKeypairFromSk(sk) {
+    return StellarSDK.Keypair.fromSecret(sk);
+} 
+
+function getPublicKeyFromSk(sk) {
+    return getKeypairFromSk(sk).publicKey();
+}
 
